@@ -1,3 +1,7 @@
+/*
+ Holly Manzambi
+ */
+
 package com.example.inventory
 
 import android.view.LayoutInflater

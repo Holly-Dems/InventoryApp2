@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ Holly Manzambi
  */
 
 package com.example.inventory
@@ -27,6 +15,21 @@ import kotlinx.coroutines.launch
  */
 class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     val allItems: LiveData<List<Item>> = itemDao.getItems().asLiveData()
+
+    fun isStockAvailable(item: Item): Boolean {
+        return (item.quantityInStock > 0)
+    }
+
+    fun updateItem(
+        itemId: Int,
+        itemName: String,
+        itemPrice: String,
+        itemCount: String
+    ) {
+        val updatedItem = getUpdatedItemEntry(itemId, itemName, itemPrice, itemCount)
+        updateItem(updatedItem)
+    }
+
 
     private fun updateItem(item: Item) {
         viewModelScope.launch {
@@ -44,6 +47,9 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Inserts the new Item into database.
      */
+
+
+
     fun addNewItem(itemName: String, itemPrice: String, itemCount: String) {
         val newItem = getNewItemEntry(itemName, itemPrice, itemCount)
         insertItem(newItem)
@@ -55,13 +61,21 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
     /**
      * Launching a new coroutine to insert an item in a non-blocking way
      */
+
     private fun insertItem(item: Item) {
         viewModelScope.launch {
             itemDao.insert(item)
         }
     }
 
-    /**
+    fun deleteItem(item: Item) {
+        viewModelScope.launch {
+            itemDao.delete(item)
+        }
+    }
+
+
+        /**
      * Returns true if the EditTexts are not empty
      */
     fun isEntryValid(itemName: String, itemPrice: String, itemCount: String): Boolean {
@@ -82,7 +96,21 @@ class InventoryViewModel(private val itemDao: ItemDao) : ViewModel() {
             quantityInStock = itemCount.toInt()
         )
     }
+    private fun getUpdatedItemEntry(
+        itemId: Int,
+        itemName: String,
+        itemPrice: String,
+        itemCount: String
+    ): Item {
+        return Item(
+            id = itemId,
+            itemName = itemName,
+            itemPrice = itemPrice.toDouble(),
+            quantityInStock = itemCount.toInt()
+        )
+    }
 }
+
 
 /**
  * Factory class to instantiate the [ViewModel] instance.

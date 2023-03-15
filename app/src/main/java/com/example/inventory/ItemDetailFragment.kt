@@ -1,17 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ Holly Manzambi
  */
 
 package com.example.inventory
@@ -60,8 +48,19 @@ class ItemDetailFragment : Fragment() {
             itemName.text = item.itemName
             itemPrice.text = item.getFormattedPrice()
             itemCount.text = item.quantityInStock.toString()
+            sellItem.isEnabled = viewModel.isStockAvailable(item)
             sellItem.setOnClickListener { viewModel.sellItem(item) }
+            deleteItem.setOnClickListener { showConfirmationDialog() }
+            editItem.setOnClickListener { editItem() }
         }
+    }
+
+    private fun editItem() {
+        val action = ItemDetailFragmentDirections.actionItemDetailFragmentToAddItemFragment(
+            getString(R.string.edit_fragment_title),
+            item.id
+        )
+        this.findNavController().navigate(action)
     }
 
     /**
@@ -83,6 +82,7 @@ class ItemDetailFragment : Fragment() {
      * Deletes the current item and navigates to the list fragment.
      */
     private fun deleteItem() {
+        viewModel.deleteItem(item)
         findNavController().navigateUp()
     }
 
